@@ -1,0 +1,24 @@
+<html>
+<head>
+</head>
+<body>
+  <div id='count'><%= @count + 1%></div>
+
+<script>
+  var countBox = document.getElementById("count");
+  window.onload = function(){
+    var count = new WebSocket('ws://' + window.location.host + "/websocket/count");
+
+    // 接続が始まった時
+    count.onopen = function() { count.send('1'); };
+    // 接続が終わった時
+    count.onclose = function() { };
+    // メッセージを受け取った時
+    count.onmessage = function(m) { countBox.innerHTML = m.data }
+    // 1秒おきに動作
+  };
+  
+
+</script>
+</body>
+</html>
