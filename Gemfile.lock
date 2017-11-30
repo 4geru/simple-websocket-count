@@ -1,0 +1,77 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    activemodel (5.1.4)
+      activesupport (= 5.1.4)
+    activerecord (5.1.4)
+      activemodel (= 5.1.4)
+      activesupport (= 5.1.4)
+      arel (~> 8.0)
+    activesupport (5.1.4)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      i18n (~> 0.7)
+      minitest (~> 5.1)
+      tzinfo (~> 1.1)
+    addressable (2.5.2)
+      public_suffix (>= 2.0.2, < 4.0)
+    arel (8.0.0)
+    backports (3.10.3)
+    concurrent-ruby (1.0.5)
+    daemons (1.2.5)
+    em-websocket (0.3.8)
+      addressable (>= 2.1.1)
+      eventmachine (>= 0.12.9)
+    eventmachine (1.2.5)
+    i18n (0.9.1)
+      concurrent-ruby (~> 1.0)
+    minitest (5.10.3)
+    multi_json (1.12.2)
+    mustermann (1.0.1)
+    public_suffix (3.0.1)
+    rack (2.0.3)
+    rack-protection (2.0.0)
+      rack
+    rake (12.3.0)
+    sinatra (2.0.0)
+      mustermann (~> 1.0)
+      rack (~> 2.0)
+      rack-protection (= 2.0.0)
+      tilt (~> 2.0)
+    sinatra-activerecord (2.0.13)
+      activerecord (>= 3.2)
+      sinatra (>= 1.0)
+    sinatra-contrib (2.0.0)
+      backports (>= 2.0)
+      multi_json
+      mustermann (~> 1.0)
+      rack-protection (= 2.0.0)
+      sinatra (= 2.0.0)
+      tilt (>= 1.3, < 3)
+    sinatra-websocket (0.3.1)
+      em-websocket (~> 0.3.6)
+      eventmachine
+      thin (>= 1.3.1, < 2.0.0)
+    sqlite3 (1.3.13)
+    thin (1.7.2)
+      daemons (~> 1.0, >= 1.0.9)
+      eventmachine (~> 1.0, >= 1.0.4)
+      rack (>= 1, < 3)
+    thread_safe (0.3.6)
+    tilt (2.0.8)
+    tzinfo (1.2.4)
+      thread_safe (~> 0.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  activerecord
+  rake
+  sinatra
+  sinatra-activerecord
+  sinatra-contrib
+  sinatra-websocket
+  sqlite3
+
+BUNDLED WITH
+   1.16.0
