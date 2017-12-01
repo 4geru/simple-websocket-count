@@ -47,6 +47,11 @@ get '/websocket/count' do
         when 'open', 'close'
           send_count
         when 'board'
+          turn  = data['turn'] == 'black' ? 'white' : 'black'
+          puts data
+          settings.sockets.each do |s| # メッセージを転送
+            s.send({type: 'board', turn: turn, pos: data['pos']}.to_json.to_s)
+          end
         end
       end
       ws.onclose do        

@@ -27,8 +27,8 @@
   <table>
     <% for i in 0..7 %>
     <tr>
-      <% for j in 0..7 %>
-        <td onclick="s('<%= i %> <%= j %>')">
+      <% for j in 0..7%>
+        <td onclick="s('<%= i %><%= j %>')"  id='<%= i %><%= j %>'>
           <% if (i == 4 and j == 4) or (i == 3 and j == 3)%>
             <div class='black'>
             </div>
@@ -61,7 +61,9 @@
       if(data.type == 'count'){
         countBox.innerHTML = data.count         
       } else if(data.type == 'board'){
-        turnBox.innerHTML = data.turn 
+        turn = data.turn == 'black' ? 'white' : 'black'
+        turnBox.innerHTML = data.turn
+        document.getElementById(data.pos).innerHTML = '<div class=' + turn + '></div>'
         console.log('get board')
       }
     }
