@@ -3,6 +3,7 @@ Bundler.require
 require 'sinatra/reloader'
 require 'sinatra-websocket'
 require 'json'
+
 require './models'
 
 
@@ -17,34 +18,42 @@ before do
 end
 
 get '/' do
+  @turn = Game.first.turn
   @count = Count.first.count
   erb :index
+end
+
+def send_count
+  settings.sockets.each do |s| # メッセージを転送
+    c = Count.first
+    s.send({type: 'count', count: c.count}.to_json.to_s)
+  end
 end
 
 get '/websocket/count' do
   if request.websocket? then
     request.websocket do |ws|
       ws.onopen do
-        c = Count.first
-        c.count = c.count + 1
-        c.save
         settings.sockets << ws
-        puts settings.sockets.index(ws)
-        puts ws
-        settings.sockets.each do |s| # メッセージを転送
-          s.send(Count.first.count.to_s)
-        end
+        c = Count.first
+        c.count += 1
+        c.save
+        send_count # 全体へ転送
       end
       ws.onmessage do |msg|
-      end
-      ws.onclose do
-        c = Count.first
-        c.count = c.count - 1
-        c.save
-        settings.sockets.each do |s| # メッセージを転送
-          puts settings.sockets.index(s) if s != ws
-          s.send(Count.first.count.to_s)
+        puts 'get msg'
+        data = JSON.parse(msg)
+        case data['type']
+        when 'open', 'close'
+          send_count
+        when 'board'
         end
+      end
+      ws.onclose do        
+        c = Count.first
+        c.count -= - 1
+        c.save
+        send_count # 全体へ転送
         settings.sockets.delete(ws)
       end
     end

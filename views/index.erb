@@ -1,20 +1,75 @@
 <html>
 <head>
+  <style>
+    td{
+      background: green;
+      width: 100px; height: 100px;
+    }
+    table{
+      background: black;
+    }
+    .black{
+      background: black;
+      margin: auto;
+      width: 80px; height: 80px;
+      border-radius: 50%;
+    }
+    .white{
+      background: white;
+      margin: auto;
+      width: 80px; height: 80px;
+      border-radius: 50%;
+    }
+  </style>
 </head>
 <body>
-  <div id='count'><%= @count + 1%></div>
+  <div id='count'><%= @count + 1%></div><div id='turn'><%= @turn %></div>
+  <table>
+    <% for i in 0..7 %>
+    <tr>
+      <% for j in 0..7 %>
+        <td onclick="s('<%= i %> <%= j %>')">
+          <% if (i == 4 and j == 4) or (i == 3 and j == 3)%>
+            <div class='black'>
+            </div>
+          <% end %>
+          <% if (i == 3 and j == 4) or (i == 4 and j == 3)%>
+            <div class='white'>
+            </div>
+          <% end %>
+        </td>
+      <% end %>
+    </tr>
+    <% end %>
+  </table>
 <script>
   var countBox = document.getElementById("count");
+  var turnBox = document.getElementById("turn");
+  
   window.onload = function(){
     var count = new WebSocket('ws://' + window.location.host + "/websocket/count");
 
     // 接続が始まった時
-    count.onopen = function() { count.send('1'); };
+    count.onopen = function() { count.send('{"type":"open"}'); };
     // 接続が終わった時
-    count.onclose = function() { };
+    count.onclose = function() { count.send('{"type":"close"}'); };
     // メッセージを受け取った時
-    count.onmessage = function(m) { countBox.innerHTML = m.data }
+    count.onmessage = function(m) {
+      console.log(m.data)
+      data = JSON.parse(m.data)
+      console.log(data)
+      if(data.type == 'count'){
+        countBox.innerHTML = data.count         
+      } else if(data.type == 'board'){
+        turnBox.innerHTML = data.turn 
+        console.log('get board')
+      }
+    }
     // 1秒おきに動作
+    s = function(msg){
+      console.log(msg)
+      count.send(JSON.stringify({type:'board', pos: msg, turn: turnBox.innerHTML}));
+    }
   };
   
 
