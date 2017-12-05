@@ -30,12 +30,10 @@
       <% for j in 0..7%>
         <td onclick="s('<%= i %><%= j %>')"  id='<%= i %><%= j %>'>
           <% if (i == 4 and j == 4) or (i == 3 and j == 3)%>
-            <div class='black'>
-            </div>
+            <div class='black'></div>
           <% end %>
           <% if (i == 3 and j == 4) or (i == 4 and j == 3)%>
-            <div class='white'>
-            </div>
+            <div class='white'></div>
           <% end %>
         </td>
       <% end %>
@@ -69,7 +67,7 @@
     }
     // 1秒おきに動作
     s = function(msg){
-      console.log(msg)
+      if(!document.getElementById(msg).innerHTML.match('div'))
       count.send(JSON.stringify({type:'board', pos: msg, turn: turnBox.innerHTML}));
     }
   };
