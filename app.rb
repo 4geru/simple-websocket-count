@@ -16,12 +16,23 @@ before do
 end
 
 get '/' do
-  @turn = Game.first.turn
-  @count = Count.first.count
+  @rooms = Game.all
   erb :index
 end
 
-get '/websocket/count' do
+post '/create_room' do
+  game = Game.create
+  redirect "/room/#{game.id}"
+end
+
+get '/room/:id' do
+  @turn = Game.find(params[:id]).turn
+  @room = Game.find(params[:id])
+  @count = Count.first.count
+  erb :room
+end
+
+get '/websocket/count/:id' do
   if request.websocket? then
     request.websocket do |ws|
       ws.onopen do # 接続を開始した時
@@ -30,6 +41,7 @@ get '/websocket/count' do
         c.count += 1
         c.save
         settings.sockets.each do |s| # 全体へメッセージを転送
+          puts s.get_peername
           c = Count.first
           s.send({type: 'count', count: c.count}.to_json.to_s)
         end

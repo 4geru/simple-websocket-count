@@ -25,7 +25,7 @@ HTML5から利用が可能で、他のクライアントと簡単に相互通信
 
 ### オセロ盤を作る
 複数のブラウザページを開いて数が増えたり減ったりするのを確認できたらOK!
-次に、オセロの板を作ってみよう！for文を使うことでtableを簡単に作ることができるよ！
+次に、オセロの板を作ってみよう！for文を使うことでtableを簡単に作ることができます！
 
 ```erb:html
 <table>
@@ -70,14 +70,14 @@ table{
 ```
 
 ### WebSocketを実装しよう
-実際に、WebSocketを使って行くよ！
+実際に、WebSocketを使って行きます！
 WebSocketは常にサーバーとブラウザが接続されているイメージ！
-app.rbの中のsettings.socketsで、接続しているブラウザを全て管理しているよ。
-リクエストを送って来たsocketをwsとして、app.rbの中で使っている。
+app.rbの中のsettings.socketsで、接続しているブラウザを全て管理しています。
+リクエストを送って来たsocketをwsとして、app.rbの中で使っています。
 
-ws.send("send")で、元のsocketに対して "send" というメッセージを送ることができるよ！
-データは、JavaScriptでは、JSON。RubyではHashで扱いたいけど、sendでは、文字しか送れないので、JavaScirpt・Rubyでそれぞれ変換してあげてる。
-複数のデータを送りたい場合は、送る時に、どのtypeかを書くと良いよ！
+ws.send("send")で、元のsocketに対して "send" というメッセージを送ることができます！
+データは、JavaScriptでは、JSON。RubyではHashで扱いたいけど、sendでは、文字しか送れないので、JavaScirpt・Rubyでそれぞれ変換する必要がります。
+複数のデータを送りたい場合は、送る時に、typeを書くと管理しやすいです。
 
 ```ruby:app.rb
 get '/websocket/count' do
@@ -159,4 +159,4 @@ window.onload = function(){
 
 なんとか形になるものにはできた。
 WebSocketを使ってみたなので、実際のゲームになるまではもう少し先のお話。
-[完成盤](https://github.com/4geru/simple-websocket-count)
+[完成盤](https://github.com/4geru/simple-websocket-count/tree/final)
