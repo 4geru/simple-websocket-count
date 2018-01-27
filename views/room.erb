@@ -46,7 +46,7 @@
     // 接続が始まった時
     count.onopen = function() { count.send('{"type":"open"}'); };
     // 接続が終わった時
-    count.onclose = function() { count.send('{"type":"close"}'); };
+    count.onclose = function() { count.send('{"type":"close", "id": <%= @room.id %>}'); };
     // メッセージを受け取った時
     count.onmessage = function(m) {
       console.log(m.data)
