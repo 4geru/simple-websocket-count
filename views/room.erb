@@ -1,0 +1,72 @@
+<style>
+  td{
+    background: green;
+    width: 50px; height: 50px;
+  }
+  table{
+    background: black;
+  }
+  .black{
+    background: black;
+    margin: auto;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+  }
+  .white{
+    background: white;
+    margin: auto;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+  }
+</style>
+<div id='count'><%= @count + 1%></div><div id='turn'><%= @turn %></div>
+<table>
+  <% for i in 0..7 %>
+  <tr>
+    <% for j in 0..7%>
+      <td onclick="s('<%= i %><%= j %>')"  id='<%= i %><%= j %>'>
+        <% if (i == 4 and j == 4) or (i == 3 and j == 3)%>
+          <div class='black'></div>
+        <% end %>
+        <% if (i == 3 and j == 4) or (i == 4 and j == 3)%>
+          <div class='white'></div>
+        <% end %>
+      </td>
+    <% end %>
+  </tr>
+  <% end %>
+</table>
+<script>
+  var countBox = document.getElementById("count");
+  var turnBox = document.getElementById("turn");
+  
+  window.onload = function(){
+    var count = new WebSocket('ws://' + window.location.host + "/websocket/count/<%= @room.id %>");
+
+    // 接続が始まった時
+    count.onopen = function() { count.send('{"type":"open"}'); };
+    // 接続が終わった時
+    count.onclose = function() { count.send('{"type":"close"}'); };
+    // メッセージを受け取った時
+    count.onmessage = function(m) {
+      console.log(m.data)
+      data = JSON.parse(m.data)
+      console.log(data)
+      if(data.type == 'count'){
+        countBox.innerHTML = data.count         
+      } else if(data.type == 'board'){
+        turn = data.turn == 'black' ? 'white' : 'black'
+        turnBox.innerHTML = data.turn
+        document.getElementById(data.pos).innerHTML = '<div class=' + turn + '></div>'
+        console.log('get board')
+      }
+    }
+    // 1秒おきに動作
+    s = function(msg){
+      if(!document.getElementById(msg).innerHTML.match('div'))
+      count.send(JSON.stringify({type:'board', pos: msg, turn: turnBox.innerHTML}));
+    }
+  };
+  
+
+</script>
