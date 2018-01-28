@@ -34,6 +34,17 @@
   }
 </style>
 <div id='count'><%= @count + 1%></div><div id='turn'><%= @turn %></div>
+<% if session[:user] %>
+  login
+<% end %>
+<%= @users.first.user.name %> vs. <%= @users.second ? @users.second.user.name : '' %>
+<% if @room.game_users.count < 2 and @room.game_users.first.user.id != session[:user] %>
+<form action="/join_room" method="post">
+  <input type="hidden" name="user_id" value="<%= session[:user] %>">
+  <input type="hidden" name="room_id" value="<%= @room.id %>">
+  <input type="submit" value="対戦する">
+</form>
+<% end %>
 <table>
   <% for i in 0..@board_size %>
   <tr>
@@ -44,73 +55,70 @@
   <% end %>
 </table>
 <script>
-  var countBox = document.getElementById("count");
-  var turnBox = document.getElementById("turn");
-  
-  // ロード後の処理
-  initializeBoard = () => {
-  <% @stones.each do |stone| %>
-    document.
-      getElementsByTagName('tr')[<%= stone.y %>].
-      getElementsByTagName('td')[<%= stone.x %>].innerHTML 
-        = "<div class='<%= stone.color %>'></div>"
-  <% end %>
-  }
+var countBox = document.getElementById("count");
+var turnBox = document.getElementById("turn");
 
-  // ボードの中に入っているか判定
-  limitBoard = (pos) => {
-    return Math.min(<%= @board_size %>, Math.max(0, pos))
-  }
+// ロード後の処理
+initializeBoard = () => {
+<% @stones.each do |stone| %>
+  document.
+    getElementsByTagName('tr')[<%= stone.y %>].
+    getElementsByTagName('td')[<%= stone.x %>].innerHTML 
+      = "<div class='<%= stone.color %>'></div>"
+<% end %>
+}
 
-  getBoard = (x, y) => {
-    table = document.getElementsByTagName('table')[0]
-    return table.getElementsByTagName('tr')[y].
-      getElementsByTagName('td')[x]
-  }
+// ボードの中に入っているか判定
+limitBoard = (pos) => {
+  return Math.min(<%= @board_size %>, Math.max(0, pos))
+}
 
-  insideBoard = (x,y) => {
-    if(x >= <%= @board_size %> || y >= <%= @board_size %>)return false
-    if(x < 0 || y < 0)return false
-    return true
-  }
+getBoard = (x, y) => {
+  table = document.getElementsByTagName('table')[0]
+  return table.getElementsByTagName('tr')[y].
+    getElementsByTagName('td')[x]
+}
 
-  window.onload = function(){
-    initializeBoard()
-    checkBoard()
-    var count = new WebSocket('ws://' + window.location.host + "/websocket/<%= @room.id %>");
+insideBoard = (x,y) => {
+  if(x >= <%= @board_size %> || y >= <%= @board_size %>)return false
+  if(x < 0 || y < 0)return false
+  return true
+}
 
-    // 接続が始まった時
-    count.onopen = function() { count.send('{"type":"open"}'); };
-    // 接続が終わった時
-    count.onclose = function() { count.send('{"type":"close", "id": <%= @room.id %>}'); };
-    // メッセージを受け取った時
-    count.onmessage = function(m) {
-      data = JSON.parse(m.data)
-      if(data.type == 'count'){
-        countBox.innerHTML = data.count         
-      } else if(data.type == 'board'){
-        document.getElementById(data.pos).innerHTML = '<div class=' + turn + '></div>'
-      } else if(data.type == 'turn'){
-        turn = data.turn == 'black' ? 'white' : 'black'
-        turnBox.innerText = data.turn
-      }
-      checkBoard()
+window.onload = function(){
+  isRank = <%= session[:user] %>
+  initializeBoard()
+  if(isRank)checkBoard()
+  var count = new WebSocket('ws://' + window.location.host + "/websocket/<%= @room.id %>");
+
+  // 接続が始まった時
+  count.onopen = function() { count.send('{"type":"open"}'); };
+  // 接続が終わった時
+  count.onclose = function() { count.send('{"type":"close", "id": <%= @room.id %>}'); };
+  // メッセージを受け取った時
+  count.onmessage = function(m) {
+    data = JSON.parse(m.data)
+    if(data.type == 'board'){
+      document.getElementById(data.pos).innerHTML = '<div class=' + turn + '></div>'
+    } else if(data.type == 'turn'){
+      turn = data.turn == 'black' ? 'white' : 'black'
+      turnBox.innerText = data.turn
     }
+    if(isRank)checkBoard()
+  }
 
-    // ボタンが押されたら
-    s = function(msg){
-      if(document.getElementById(msg).innerHTML.match('red')){
-        updateBoard(parseInt(msg[1]), parseInt(msg[0]))
-        count.send(JSON.stringify({type:'turn'}));
-      }
+  // ボタンが押されたら
+  s = function(msg){
+    if(document.getElementById(msg).innerHTML.match('red')){
+      updateBoard(parseInt(msg[1]), parseInt(msg[0]))
+      count.send(JSON.stringify({type:'turn'}));
     }
+  }
 
-    updateStone = (x, y, turn) => {
-      pos = getBoard(x,y)
-      pos.innerHTML = `<div class="${turn}"></div>`
-      count.send(JSON.stringify({type:'board', pos: `${y}${x}`, turn: turn}));
-    }
-  };
-  
-
+  updateStone = (x, y, turn) => {
+    pos = getBoard(x,y)
+    pos.innerHTML = `<div class="${turn}"></div>`
+    count.send(JSON.stringify({type:'board', pos: `${y}${x}`, turn: turn}));
+  }
+};
 </script>

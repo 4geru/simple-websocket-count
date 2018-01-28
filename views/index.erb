@@ -1,7 +1,10 @@
-<form action="/create_room" method="post">
-  <input type="submit" value="部屋の追加">
-</form>
-
+<% if session[:user] %>
+  <form action="/create_room" method="post">
+    <input type="submit" value="部屋の追加">
+  </form>
+<% else %>
+  <p>閲覧モードです．対戦にはログインが必要です．</p>
+<% end %>
 <table>
 <% @rooms.each do |room| %>
   <tr>

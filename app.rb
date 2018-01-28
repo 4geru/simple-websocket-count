@@ -26,7 +26,15 @@ end
 post '/create_room' do
   game = Game.create({:turn => 'white'})
   game.init
+  GameUser.create({user_id: session[:user], game_id: game.id})
   redirect "/room/#{game.id}"
+end
+
+post '/join_room' do
+  GameUser.create({
+    user_id: session[:user],
+    game_id: params['room_id']
+    })
 end
 
 get '/room/:id' do
@@ -36,6 +44,7 @@ get '/room/:id' do
   @room = Game.find(params[:id])
   @turn = @room.turn
   @stones = @room.stones
+  @users = GameUser.where({:game => params[:id]})
   erb :room
 end
 
