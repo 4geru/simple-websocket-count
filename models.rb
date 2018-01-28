@@ -17,3 +17,11 @@ end
 class Stone < ActiveRecord::Base
   belongs_to :game
 end
+
+class User < ActiveRecord::Base
+  has_secure_password
+  validates :name,
+    presence: true
+  validates :password,
+    length: {in: 5..10}
+end

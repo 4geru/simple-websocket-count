@@ -1,10 +1,12 @@
 require 'bundler/setup'
 Bundler.require
-require 'sinatra/reloader'
+require 'sinatra/reloader' if development?
 require 'sinatra-websocket'
 require 'json'
-
 require './models'
+require './src/login'
+
+enable :sessions
 
 
 set :server, 'thin'
