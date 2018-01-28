@@ -77,7 +77,7 @@
   window.onload = function(){
     initializeBoard()
     checkBoard()
-    var count = new WebSocket('ws://' + window.location.host + "/websocket/count/<%= @room.id %>");
+    var count = new WebSocket('ws://' + window.location.host + "/websocket/<%= @room.id %>");
 
     // 接続が始まった時
     count.onopen = function() { count.send('{"type":"open"}'); };
@@ -85,24 +85,23 @@
     count.onclose = function() { count.send('{"type":"close", "id": <%= @room.id %>}'); };
     // メッセージを受け取った時
     count.onmessage = function(m) {
-      console.log(m.data)
       data = JSON.parse(m.data)
-      console.log(data)
       if(data.type == 'count'){
         countBox.innerHTML = data.count         
       } else if(data.type == 'board'){
-        console.log(data.turn)
-        turnBox.innerText = data.turn
-        turn = data.turn == 'black' ? 'white' : 'black'
         document.getElementById(data.pos).innerHTML = '<div class=' + turn + '></div>'
-        checkBoard()
+      } else if(data.type == 'turn'){
+        turn = data.turn == 'black' ? 'white' : 'black'
+        turnBox.innerText = data.turn
       }
+      checkBoard()
     }
 
     // ボタンが押されたら
     s = function(msg){
       if(document.getElementById(msg).innerHTML.match('red')){
         updateBoard(parseInt(msg[1]), parseInt(msg[0]))
+        count.send(JSON.stringify({type:'turn'}));
       }
     }
 

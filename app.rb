@@ -37,7 +37,7 @@ get '/room/:id' do
   erb :room
 end
 
-get '/websocket/count/:id' do |path|
+get '/websocket/:id' do |path|
   if request.websocket? then
     request.websocket do |ws|
       ws.onopen do # 接続を開始した時
@@ -47,20 +47,22 @@ get '/websocket/count/:id' do |path|
       ws.onmessage do |msg| # メッセージを受け取った時
         puts 'メッセージを受け取ったよ！'
         data = JSON.parse(msg)
+        puts data
         case data['type']
         when 'board' # 送られたデータが board データだったら
-          # game = Game.find(path)
-          # puts "y is #{data['pos'][0]}"
-          # puts "x is #{data['pos'][1]}"
+          game = Game.find(path)
           pos = data['pos']
-          data['turn'] = data['turn'] == 'black' ? 'white' : 'black'
-
-          # Stone.create({game_id: path, x: pos[1], y: pos[0], color: game.turn})
+          Stone.create({game_id: path, x: pos[1], y: pos[0], color: game.turn})
           settings.sockets[path].each do |s| # メッセージを転送
             s.send({type: 'board', turn: data['turn'], pos: data['pos']}.to_json.to_s)
           end
-          # game.turn  = game.turn == 'black' ? 'white' : 'black'
-          # game.save
+        when 'turn' # 送られたデータが board データだったら
+          game = Game.find(path)
+          game.turn = game.turn == 'black' ? 'white' : 'black'
+          settings.sockets[path].each do |s| # メッセージを転送
+            s.send({type: 'turn', turn: game.turn}.to_json.to_s)
+          end
+          game.save
         end
       end
       ws.onclose do # メッセージを終了する時

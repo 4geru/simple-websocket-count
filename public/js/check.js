@@ -24,14 +24,13 @@ checkStone = (x, y) => {
     for(var dy = -1; dy <= 1 ; dy ++){
       if(dx == dy && dx == 0)continue;
       if(!insideBoard(x + dx) || !insideBoard(y + dy))continue;
-      flag = checkLine(x + dx, y + dy, dx, dy) || flag
-        
+      flag = checkLine(x + dx, y + dy, dx, dy) || flag        
     }
   }
   const pos = getBoard(limitBoard(x), limitBoard(y))
-  if(flag && pos.innerHTML == "")
+  if(flag)
     pos.innerHTML = '<div class="red"></div>'
-  else if(pos.innerHTML == '<div class="red"></div>')
+  else
     pos.innerHTML = ''
 }
 
@@ -41,11 +40,12 @@ checkBoard = () => {
   table = document.getElementsByTagName('table')[0]
   tr = table.getElementsByTagName('tr')
   for(var i = 0 ; i < tr.length ; i ++  ){
-    // i = 2;
     td  = tr[i].getElementsByTagName('td')
-    // j = 1;
     for(var j = 0 ; j < td.length ; j ++ ){
-      checkStone(j, i)
+      const pos = getBoard(j, i)
+      if(pos.innerHTML == "" || pos.innerHTML == '<div class="red"></div>'){
+        checkStone(j, i)
+      }
     }
   }
 }
