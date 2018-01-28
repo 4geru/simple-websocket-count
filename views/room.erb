@@ -38,8 +38,8 @@
   initialize_board = () => {
   <% @stones.each do |stone| %>
     document.
-      getElementsByTagName('tr')[<%= stone.x %>].
-      getElementsByTagName('td')[<%= stone.y %>].innerHTML 
+      getElementsByTagName('tr')[<%= stone.y %>].
+      getElementsByTagName('td')[<%= stone.x %>].innerHTML 
         = "<div class='<%= stone.color %>'></div>"
   <% end %>
   }
@@ -60,7 +60,7 @@
       if(data.type == 'count'){
         countBox.innerHTML = data.count         
       } else if(data.type == 'board'){
-        turn = data.turn == 'black' ? 'white' : 'black'
+        turn = data.turn
         turnBox.innerHTML = data.turn
         document.getElementById(data.pos).innerHTML = '<div class=' + turn + '></div>'
         console.log('get board')
