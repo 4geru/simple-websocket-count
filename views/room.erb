@@ -25,12 +25,6 @@
   <tr>
     <% for j in 0..7%>
       <td onclick="s('<%= i %><%= j %>')"  id='<%= i %><%= j %>'>
-        <% if (i == 4 and j == 4) or (i == 3 and j == 3)%>
-          <div class='black'></div>
-        <% end %>
-        <% if (i == 3 and j == 4) or (i == 4 and j == 3)%>
-          <div class='white'></div>
-        <% end %>
       </td>
     <% end %>
   </tr>
@@ -40,7 +34,18 @@
   var countBox = document.getElementById("count");
   var turnBox = document.getElementById("turn");
   
+
+  initialize_board = () => {
+  <% @stones.each do |stone| %>
+    document.
+      getElementsByTagName('tr')[<%= stone.x %>].
+      getElementsByTagName('td')[<%= stone.y %>].innerHTML 
+        = "<div class='<%= stone.color %>'></div>"
+  <% end %>
+  }
+
   window.onload = function(){
+    initialize_board()
     var count = new WebSocket('ws://' + window.location.host + "/websocket/count/<%= @room.id %>");
 
     // 接続が始まった時

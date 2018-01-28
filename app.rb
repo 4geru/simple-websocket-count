@@ -22,15 +22,16 @@ get '/' do
 end
 
 post '/create_room' do
-  game = Game.create
+  game = Game.create.init
   redirect "/room/#{game.id}"
 end
 
 get '/room/:id' do
   @title = "Room No.#{params[:id]}"
-  @turn = Game.find(params[:id]).turn
-  @room = Game.find(params[:id])
   @count = Count.first.count
+  @room = Game.find(params[:id])
+  @turn = @room.turn
+  @stones = @room.stones
   erb :room
 end
 
