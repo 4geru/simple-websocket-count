@@ -32,12 +32,24 @@
     width: 40px; height: 40px;
     border-radius: 50%;
   }
+  .players > div{
+    float: left;
+  }
+  .players{
+    clear:both;
+  }
 </style>
 <div id='count'><%= @count + 1%></div><div id='turn'><%= @turn %></div>
-<% if session[:user] %>
-  login
-<% end %>
-<%= @users.first.user.name %> vs. <%= @users.second ? @users.second.user.name : '' %>
+<div class="players">
+<div id="player1">
+  <input type="hidden" value="<%= @users.first.user.id %>"><%= @users.first.user.name %>
+</div><div> vs. </div>
+<div id="player2">
+  <input type="hidden" value="<%= @users.second ? @users.second.user.id : '' %>"><%= @users.second ? @users.second.user.name : '' %>    
+</div>
+</div>
+<br />
+<hr />
 <% if @room.game_users.count < 2 and @room.game_users.first.user.id != session[:user] %>
 <form action="/join_room" method="post">
   <input type="hidden" name="user_id" value="<%= session[:user] %>">
@@ -86,7 +98,6 @@ insideBoard = (x,y) => {
 }
 
 window.onload = function(){
-  isRank = <%= session[:user] %>
   initializeBoard()
   if(isRank)checkBoard()
   var count = new WebSocket('ws://' + window.location.host + "/websocket/<%= @room.id %>");
@@ -103,6 +114,8 @@ window.onload = function(){
     } else if(data.type == 'turn'){
       turn = data.turn == 'black' ? 'white' : 'black'
       turnBox.innerText = data.turn
+    } else if(data.type == 'join'){
+      document.getElementById('player2').innerText = data.name
     }
     if(isRank)checkBoard()
   }

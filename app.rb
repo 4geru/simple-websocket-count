@@ -31,10 +31,15 @@ post '/create_room' do
 end
 
 post '/join_room' do
+  user = User.find(session[:user])
   GameUser.create({
     user_id: session[:user],
     game_id: params['room_id']
     })
+  settings.sockets[params['room_id']].each do |s| # メッセージを転送
+    s.send({type: 'join', name: user.name}.to_json.to_s)
+  end
+  redirect "/room/#{params['room_id']}"
 end
 
 get '/room/:id' do
