@@ -61,7 +61,8 @@
         console.log('get board')
       }
     }
-    // 1秒おきに動作
+
+    // ボタンが押されたら
     s = function(msg){
       if(!document.getElementById(msg).innerHTML.match('div'))
       count.send(JSON.stringify({type:'board', pos: msg, turn: turnBox.innerHTML}));

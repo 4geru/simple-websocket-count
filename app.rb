@@ -16,6 +16,7 @@ before do
 end
 
 get '/' do
+  @title = "Home"
   @rooms = Game.all
   erb :index
 end
@@ -26,6 +27,7 @@ post '/create_room' do
 end
 
 get '/room/:id' do
+  @title = "Room No.#{params[:id]}"
   @turn = Game.find(params[:id]).turn
   @room = Game.find(params[:id])
   @count = Count.first.count
