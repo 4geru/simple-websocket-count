@@ -30,18 +30,6 @@ post '/create_room' do
   redirect "/room/#{game.id}"
 end
 
-post '/join_room' do
-  user = User.find(session[:user])
-  GameUser.create({
-    user_id: session[:user],
-    game_id: params['room_id']
-    })
-  settings.sockets[params['room_id']].each do |s| # メッセージを転送
-    s.send({type: 'join', name: user.name}.to_json.to_s)
-  end
-  redirect "/room/#{params['room_id']}"
-end
-
 get '/room/:id' do
   @board_size = 7
   @title = "Room No.#{params[:id]}"
@@ -79,6 +67,16 @@ get '/websocket/:id' do |path|
             s.send({type: 'turn', turn: game.turn}.to_json.to_s)
           end
           game.save
+        when 'join'
+          puts data
+          user = User.find(data['user_id'])
+          GameUser.create({
+            user_id: data['user_id'],
+            game_id: data['room_id']
+            })
+          settings.sockets[path].each do |s| # メッセージを転送
+            s.send({type: 'join', name: user.name, id: user.id}.to_json.to_s)
+          end
         end
       end
       ws.onclose do # メッセージを終了する時

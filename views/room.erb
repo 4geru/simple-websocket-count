@@ -41,21 +41,19 @@
 </style>
 <div id='count'><%= @count + 1%></div><div id='turn'><%= @turn %></div>
 <div class="players">
-<div id="player1">
-  <input type="hidden" value="<%= @users.first.user.id %>"><%= @users.first.user.name %>
+<div class="player">
+  <div class="name"><%= @users.first.user.name %></div>
+  <input type="hidden" value="<%= @users.first.user.id %>">
 </div><div> vs. </div>
-<div id="player2">
-  <input type="hidden" value="<%= @users.second ? @users.second.user.id : '' %>"><%= @users.second ? @users.second.user.name : '' %>    
+<div class="player">
+  <div class="name"><%= @users.second ? @users.second.user.name : '' %></div>
+  <input type="hidden" value="<%= @users.second ? @users.second.user.id : '' %>">   
 </div>
 </div>
 <br />
 <hr />
 <% if @room.game_users.count < 2 and @room.game_users.first.user.id != session[:user] %>
-<form action="/join_room" method="post">
-  <input type="hidden" name="user_id" value="<%= session[:user] %>">
-  <input type="hidden" name="room_id" value="<%= @room.id %>">
-  <input type="submit" value="対戦する">
-</form>
+<div onclick="join()">参戦する</div>
 <% end %>
 <table>
   <% for i in 0..@board_size %>
@@ -67,6 +65,7 @@
   <% end %>
 </table>
 <script>
+const isRank = <%= session[:user] || "\'\'" %>
 var countBox = document.getElementById("count");
 var turnBox = document.getElementById("turn");
 
@@ -115,17 +114,28 @@ window.onload = function(){
       turn = data.turn == 'black' ? 'white' : 'black'
       turnBox.innerText = data.turn
     } else if(data.type == 'join'){
-      document.getElementById('player2').innerText = data.name
+      document.getElementById('player')[1]
+      .getElementsByClassName('name')[0].innerText = data.name
+      document.getElementById('player')[1]
+      .getElementsByTagName('input')[0].value = data.id
     }
     if(isRank)checkBoard()
   }
 
   // ボタンが押されたら
-  s = function(msg){
+  s = (msg) => {
     if(document.getElementById(msg).innerHTML.match('red')){
       updateBoard(parseInt(msg[1]), parseInt(msg[0]))
-      count.send(JSON.stringify({type:'turn'}));
+      count.send(JSON.stringify({type:'turn', user_id}));
     }
+  }
+
+  join = () => {
+    count.send(JSON.stringify({
+      type : 'join', 
+      room_id: <%= @room.id %>,
+      user_id: <%= session[:user] || '' %>,
+    }));
   }
 
   updateStone = (x, y, turn) => {
