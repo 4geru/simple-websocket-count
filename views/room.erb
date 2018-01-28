@@ -18,14 +18,25 @@
     width: 40px; height: 40px;
     border-radius: 50%;
   }
+  .blue{
+    background: blue;
+    margin: auto;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+  }
+  .red{
+    background: red;
+    margin: auto;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+  }
 </style>
 <div id='count'><%= @count + 1%></div><div id='turn'><%= @turn %></div>
 <table>
-  <% for i in 0..7 %>
+  <% for i in 0..@board_size %>
   <tr>
-    <% for j in 0..7%>
-      <td onclick="s('<%= i %><%= j %>')"  id='<%= i %><%= j %>'>
-      </td>
+    <% for j in 0..@board_size %>
+      <td onclick="s('<%= i %><%= j %>')"  id='<%= i %><%= j %>'></td>
     <% end %>
   </tr>
   <% end %>
@@ -34,8 +45,8 @@
   var countBox = document.getElementById("count");
   var turnBox = document.getElementById("turn");
   
-
-  initialize_board = () => {
+  // ロード後の処理
+  initializeBoard = () => {
   <% @stones.each do |stone| %>
     document.
       getElementsByTagName('tr')[<%= stone.y %>].
@@ -44,8 +55,62 @@
   <% end %>
   }
 
+  // ボードの中に入っているか判定
+  insideBoard = (pos) => {
+    return Math.min(<%= @board_size %>, Math.max(0, pos))
+  }
+
+  inBoard = (x, y) => {
+    table = document.getElementsByTagName('table')[0]
+    // console.log(x,y)
+    return table.getElementsByTagName('tr')[y].
+      getElementsByTagName('td')[x]
+  }
+
+  checkLine = (x, y, dx, dy) => {
+    turn = document.getElementById('turn').innerText;
+    count = 0
+    if(inBoard(insideBoard(y+dy), insideBoard(x+dx)).innerHTML != '' && 
+      inBoard(insideBoard(y+dy), insideBoard(x+dx)).innerHTML != '<div class="red"></div>' && 
+      inBoard(insideBoard(y+dy), insideBoard(x+dx)).innerHTML != '<div class="' + turn +'"></div>')
+      count ++
+    console.log(x,y,dx,dy,count)
+    return count
+  }
+
+  checkStone = (x, y) => {
+    count = 0
+    for(var dx = -1; dx <= 1 ; dx ++){
+      for(var dy = -1; dy <= 1 ; dy ++){
+        if(dx == dy && dx == 0)continue;
+        count += checkLine(x,y,dx,dy)
+      }
+    }
+    const pos = inBoard(insideBoard(y), insideBoard(x))
+    if(count != 0 &&
+      pos.innerHTML == '' ||
+      pos.innerHTML == '<div class="red"></div>')
+      pos.
+              innerHTML = '<div class="red"></div>'
+    console.log(count)
+  }
+  // 置けるところ
+  checkBoard = () => {
+    table = document.getElementsByTagName('table')[0]
+    tr = table.getElementsByTagName('tr')
+    for(var i = 0 ; i < tr.length ; i ++  ){
+      // i = 2;
+      td  = tr[i].getElementsByTagName('td')
+      // j = 1;
+      for(var j = 0 ; j < td.length ; j ++ ){
+        checkStone(j, i)
+      }
+    }
+  }
+
+
   window.onload = function(){
-    initialize_board()
+    initializeBoard()
     var count = new WebSocket('ws://' + window.location.host + "/websocket/count/<%= @room.id %>");
 
     // 接続が始まった時

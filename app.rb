@@ -22,12 +22,13 @@ get '/' do
 end
 
 post '/create_room' do
-  game = Game.create
+  game = Game.create({:turn => 'white'})
   game.init
   redirect "/room/#{game.id}"
 end
 
 get '/room/:id' do
+  @board_size = 7
   @title = "Room No.#{params[:id]}"
   @count = Count.first.count
   @room = Game.find(params[:id])
