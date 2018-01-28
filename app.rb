@@ -49,16 +49,18 @@ get '/websocket/count/:id' do |path|
         data = JSON.parse(msg)
         case data['type']
         when 'board' # 送られたデータが board データだったら
-          game = Game.find(path)
+          # game = Game.find(path)
           # puts "y is #{data['pos'][0]}"
           # puts "x is #{data['pos'][1]}"
           pos = data['pos']
-          Stone.create({game_id: path, x: pos[1], y: pos[0], color: game.turn})
+          data['turn'] = data['turn'] == 'black' ? 'white' : 'black'
+
+          # Stone.create({game_id: path, x: pos[1], y: pos[0], color: game.turn})
           settings.sockets[path].each do |s| # メッセージを転送
-            s.send({type: 'board', turn: game.turn, pos: data['pos']}.to_json.to_s)
+            s.send({type: 'board', turn: data['turn'], pos: data['pos']}.to_json.to_s)
           end
-          game.turn  = game.turn == 'black' ? 'white' : 'black'
-          game.save
+          # game.turn  = game.turn == 'black' ? 'white' : 'black'
+          # game.save
         end
       end
       ws.onclose do # メッセージを終了する時

@@ -1,3 +1,5 @@
+<script src='/js/check.js'></script>
+<script src='/js/update.js'></script>
 <style>
   td{
     background: green;
@@ -72,59 +74,9 @@
     return true
   }
 
-  // startx, starty, distx, disty
-  checkLine = (nx ,ny, dx, dy) => {
-    turn = document.getElementById('turn').innerText;
-    if(getBoard(nx,ny).innerHTML == `<div class="${turn}"></div>`) return false
-    while(true){
-      // ボードから外れた
-      if(!insideBoard(nx, ny))return false
-      pos = getBoard(nx,ny)
-      // から枠だった
-      if(pos.innerHTML == '' || pos.innerHTML == '<div class="red"></div>')return false
-      if(pos.innerHTML == `<div class="${turn}"></div>`){
-        return true
-      }
-      nx += dx;
-      ny += dy;
-    }
-  }
-
-  checkStone = (x, y) => {
-    count = 0
-    flag = false
-    turn = document.getElementById('turn').innerText;
-    for(var dx = -1; dx <= 1 ; dx ++){
-      for(var dy = -1; dy <= 1 ; dy ++){
-        if(dx == dy && dx == 0)continue;
-        if(!insideBoard(x + dx) || !insideBoard(y + dy))continue;
-        flag = checkLine(x + dx, y + dy, dx, dy) || flag
-          
-      }
-    }
-    const pos = getBoard(limitBoard(x), limitBoard(y))
-    if(flag && pos.innerHTML == "")
-      pos.innerHTML = '<div class="red"></div>'
-    else if(pos.innerHTML == '<div class="red"></div>')
-      pos.innerHTML = ''
-  }
-  // 置けるところ
-  checkBoard = () => {
-    table = document.getElementsByTagName('table')[0]
-    tr = table.getElementsByTagName('tr')
-    for(var i = 0 ; i < tr.length ; i ++  ){
-      // i = 2;
-      td  = tr[i].getElementsByTagName('td')
-      // j = 1;
-      for(var j = 0 ; j < td.length ; j ++ ){
-        checkStone(j, i)
-      }
-    }
-  }
-
-
   window.onload = function(){
     initializeBoard()
+    checkBoard()
     var count = new WebSocket('ws://' + window.location.host + "/websocket/count/<%= @room.id %>");
 
     // 接続が始まった時
@@ -139,18 +91,25 @@
       if(data.type == 'count'){
         countBox.innerHTML = data.count         
       } else if(data.type == 'board'){
-        turn = data.turn
-        turnBox.innerHTML = data.turn
+        console.log(data.turn)
+        turnBox.innerText = data.turn
+        turn = data.turn == 'black' ? 'white' : 'black'
         document.getElementById(data.pos).innerHTML = '<div class=' + turn + '></div>'
-        console.log('get board')
+        checkBoard()
       }
     }
 
     // ボタンが押されたら
     s = function(msg){
-      if(document.getElementById(msg).innerHTML.match('red'))
-      count.send(JSON.stringify({type:'board', pos: msg, turn: turnBox.innerHTML}));
-      checkBoard()
+      if(document.getElementById(msg).innerHTML.match('red')){
+        updateBoard(parseInt(msg[1]), parseInt(msg[0]))
+      }
+    }
+
+    updateStone = (x, y, turn) => {
+      pos = getBoard(x,y)
+      pos.innerHTML = `<div class="${turn}"></div>`
+      count.send(JSON.stringify({type:'board', pos: `${y}${x}`, turn: turn}));
     }
   };
   
