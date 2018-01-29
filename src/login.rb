@@ -12,6 +12,9 @@ post '/signin' do
   user = User.find_by(name: params[:name])
   if user && user.authenticate(params[:password])
     session[:user] = user.id
+  else 
+    session[:error] = 'different password'
+    redirect '/signin'
   end
   redirect '/'
 end
