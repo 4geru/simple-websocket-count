@@ -65,13 +65,13 @@ get '/websocket/:id' do |path|
         when 'turn' # 送られたデータが board データだったら
           game = Game.find(path)
           game.turn = game.turn == 'black' ? 'white' : 'black'
+          user = GameUser.where({:game => game.id})[game.stones.count % 2].user
 
           settings.sockets[path].each do |s| # メッセージを転送
-            s.send({type: 'turn', turn: game.turn}.to_json.to_s)
+            s.send({type: 'turn', turn: game.turn, user_id: user.id}.to_json.to_s)
           end
           game.save
         when 'join'
-          puts data
           user = User.find(data['user_id'])
           GameUser.create({
             user_id: data['user_id'],
