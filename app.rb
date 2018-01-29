@@ -35,9 +35,11 @@ get '/room/:id' do
   @title = "Room No.#{params[:id]}"
   @count = Count.first.count
   @room = Game.find(params[:id])
-  @turn = @room.turn
+  @turn_name = @room.turn
   @stones = @room.stones
   @users = GameUser.where({:game => params[:id]})
+  user_idx = @room.turn == 'white' ? 0 : 1
+  @user_id = GameUser.where({:game => params[:id]})[user_idx].user.id
   erb :room
 end
 
@@ -63,6 +65,7 @@ get '/websocket/:id' do |path|
         when 'turn' # 送られたデータが board データだったら
           game = Game.find(path)
           game.turn = game.turn == 'black' ? 'white' : 'black'
+
           settings.sockets[path].each do |s| # メッセージを転送
             s.send({type: 'turn', turn: game.turn}.to_json.to_s)
           end

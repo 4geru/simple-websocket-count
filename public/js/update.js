@@ -33,3 +33,15 @@ updateBoard = (x, y) => {
     }
   }
 }
+
+clearRed = () => {
+  for(var i = 0 ; i < tr.length ; i ++  ){
+    td  = tr[i].getElementsByTagName('td')
+    for(var j = 0 ; j < td.length ; j ++ ){
+      const pos = getBoard(j, i)
+      if(pos.innerHTML == '<div class="red"></div>'){
+        pos.innerHTML = ""
+      }
+    }
+  }
+}

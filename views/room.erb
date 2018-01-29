@@ -39,7 +39,7 @@
     clear:both;
   }
 </style>
-<div id='count'><%= @count + 1%></div><div id='turn'><%= @turn %></div>
+<div id='count'><%= @count + 1%></div><div id='turn'><%= @turn_name %></div>
 <div class="players">
 <div class="player">
   <div class="name"><%= @users.first.user.name %></div>
@@ -53,7 +53,7 @@
 <br />
 <hr />
 <% if @room.game_users.count < 2 and @room.game_users.first.user.id != session[:user] %>
-<div onclick="join()">参戦する</div>
+<div id="joinBtn" onclick="join()">参戦する</div>
 <% end %>
 <table>
   <% for i in 0..@board_size %>
@@ -68,7 +68,8 @@
 const isRank = <%= session[:user] || "\'\'" %>
 var countBox = document.getElementById("count");
 var turnBox = document.getElementById("turn");
-
+var player = <%= @user_id || "" %>
+console.log(isRank, player)
 // ロード後の処理
 initializeBoard = () => {
 <% @stones.each do |stone| %>
@@ -98,7 +99,7 @@ insideBoard = (x,y) => {
 
 window.onload = function(){
   initializeBoard()
-  if(isRank)checkBoard()
+  if(isRank == player)checkBoard()
   var count = new WebSocket('ws://' + window.location.host + "/websocket/<%= @room.id %>");
 
   // 接続が始まった時
@@ -109,24 +110,28 @@ window.onload = function(){
   count.onmessage = function(m) {
     data = JSON.parse(m.data)
     if(data.type == 'board'){
-      document.getElementById(data.pos).innerHTML = '<div class=' + turn + '></div>'
+      document.getElementById(data.pos).innerHTML = '<div class=' + data.turn + '></div>'
     } else if(data.type == 'turn'){
+      console.log(data)
       turn = data.turn == 'black' ? 'white' : 'black'
       turnBox.innerText = data.turn
+      players = document.getElementsByClassName('player')
+      player = (turn == 'white' ? players[0] : players[1])
     } else if(data.type == 'join'){
-      document.getElementById('player')[1]
+      document.getElementsByClassName('player')[1]
       .getElementsByClassName('name')[0].innerText = data.name
-      document.getElementById('player')[1]
+      document.getElementsByClassName('player')[1]
       .getElementsByTagName('input')[0].value = data.id
     }
-    if(isRank)checkBoard()
+    // if(isRank == player)checkBoard()
   }
 
   // ボタンが押されたら
   s = (msg) => {
     if(document.getElementById(msg).innerHTML.match('red')){
       updateBoard(parseInt(msg[1]), parseInt(msg[0]))
-      count.send(JSON.stringify({type:'turn', user_id}));
+      count.send(JSON.stringify({type:'turn'}));
+      clearRed();
     }
   }
 
@@ -136,6 +141,7 @@ window.onload = function(){
       room_id: <%= @room.id %>,
       user_id: <%= session[:user] || '' %>,
     }));
+    document.getElementById('joinBtn').innerHTML = ""
   }
 
   updateStone = (x, y, turn) => {
