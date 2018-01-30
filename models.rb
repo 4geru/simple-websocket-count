@@ -14,6 +14,12 @@ class Game < ActiveRecord::Base
     Stone.create({game_id: self.id, x: 4, y: 3, color: 'white'})
     Stone.create({game_id: self.id, x: 3, y: 4, color: 'white'})
   end
+
+  def countColor
+    black  = self.stones.where({color: 'black'}).count
+    white = self.stones.where({color: 'black'}).count
+    {:black => black, :white => white}
+  end
 end
 
 class Stone < ActiveRecord::Base

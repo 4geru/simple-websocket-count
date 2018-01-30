@@ -14,12 +14,18 @@ set :sockets, {}
 
 before do
   Count.create(count: 0) if Count.all.size == 0
-  Game.create(turn: 'black') if Game.all.size == 0
 end
 
 get '/' do
   @title = "Home"
-  @rooms = Game.all
+  @rooms = Game.all.select{|game| game.game_users.count != 0 and game.game_users.count < 2}
+  erb :index
+end
+
+get '/joined/:user_id' do
+  @title = "User Prifile"
+  @user = User.find(params[:user_id])
+  @rooms = GameUser.where({user_id: params[:user_id]}).map{|gu| gu.game }
   erb :index
 end
 
@@ -58,14 +64,16 @@ get '/websocket/:id' do |path|
         when 'board' # 送られたデータが board データだったら
           game = Game.find(path)
           pos = data['pos']
-          Stone.create({game_id: path, x: pos[1], y: pos[0], color: game.turn})
+          stone = Stone.find_or_initialize_by({game_id: path, x: pos[1], y: pos[0]})
+          stone.update({game_id: path, x: pos[1], y: pos[0], color: game.turn})
           settings.sockets[path].each do |s| # メッセージを転送
             s.send({type: 'board', turn: data['turn'], pos: data['pos']}.to_json.to_s)
           end
         when 'turn' # 送られたデータが board データだったら
           game = Game.find(path)
           game.turn = game.turn == 'black' ? 'white' : 'black'
-          user = GameUser.where({:game => game.id})[game.stones.count % 2].user
+          game.pass_count = 0
+          user = GameUser.where({:game => game.id})[(game.stones.count + 1) % 2].user
 
           settings.sockets[path].each do |s| # メッセージを転送
             s.send({type: 'turn', turn: game.turn, user_id: user.id}.to_json.to_s)
@@ -80,6 +88,24 @@ get '/websocket/:id' do |path|
           settings.sockets[path].each do |s| # メッセージを転送
             s.send({type: 'join', name: user.name, id: user.id}.to_json.to_s)
           end
+        when 'pass'
+          game = Game.find(path)
+          game.pass_count += 1
+          if(game.pass_count >= 2)
+            game.status = 'finished'
+            settings.sockets[path].each do |s| # メッセージを転送
+              count_color = game.countColor
+              win_color = (count_color[:black] > count_color[:white] ? 'black' : 'white')
+              s.send({type: 'finished', win: win_color }.to_json.to_s)
+            end            
+          else
+            game.turn = game.turn == 'black' ? 'white' : 'black'
+            user = GameUser.where({:game => game.id})[(game.stones.count + 1) % 2].user
+            settings.sockets[path].each do |s| # メッセージを転送
+              s.send({type: 'turn', turn: game.turn, user_id: user.id}.to_json.to_s)
+            end
+          end
+          game.save
         end
       end
       ws.onclose do # メッセージを終了する時

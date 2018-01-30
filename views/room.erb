@@ -52,7 +52,7 @@
 </div>
 <br />
 <hr />
-<% if @room.game_users.count < 2 and @room.game_users.first.user.id != session[:user] %>
+<% if @room.game_users.count < 2 and session[:user] and @room.game_users.first.user.id != session[:user] %>
 <div id="joinBtn" onclick="join()">参戦する</div>
 <% end %>
 <table>
@@ -65,11 +65,11 @@
   <% end %>
 </table>
 <script>
-const isRank = <%= session[:user] || "\'\'" %>
+const myRank = <%= session[:user] || "\'\'" %>
 var countBox = document.getElementById("count");
 var turnBox = document.getElementById("turn");
 var player = <%= @user_id || "" %>
-console.log(isRank, player)
+console.log(myRank, player)
 // ロード後の処理
 initializeBoard = () => {
 <% @stones.each do |stone| %>
@@ -99,7 +99,7 @@ insideBoard = (x,y) => {
 
 window.onload = function(){
   initializeBoard()
-  if(isRank == player)checkBoard()
+  if(myRank == player)checkBoard()
   var count = new WebSocket('ws://' + window.location.host + "/websocket/<%= @room.id %>");
 
   // 接続が始まった時
@@ -109,21 +109,29 @@ window.onload = function(){
   // メッセージを受け取った時
   count.onmessage = function(m) {
     data = JSON.parse(m.data)
+    console.log({type: data.type, data: data})
     if(data.type == 'board'){
       document.getElementById(data.pos).innerHTML = '<div class=' + data.turn + '></div>'
     } else if(data.type == 'turn'){
-      console.log(data)
-      turn = data.turn == 'black' ? 'white' : 'black'
-      turnBox.innerText = data.turn
+      turn = data.turn
+      turnBox.innerText = turn
       players = document.getElementsByClassName('player')
-      player = (turn == 'white' ? players[0] : players[1])
+      // player = parseInt((turn == 'white' ? players[0] : players[1]).getElementsByTagName('input')[0].value)
+      // console.log({player: data.user_id, myrank: myRank})
+      if(!(data.user_id == myRank || myRank == '')){
+        if(!checkBoard()){ // 石が置けなかったら
+          console.log('pass')
+          count.send(JSON.stringify({type:'pass'}));
+        }
+      }
     } else if(data.type == 'join'){
       document.getElementsByClassName('player')[1]
       .getElementsByClassName('name')[0].innerText = data.name
       document.getElementsByClassName('player')[1]
       .getElementsByTagName('input')[0].value = data.id
+    } else {
+      console.log(data)
     }
-    // if(isRank == player)checkBoard()
   }
 
   // ボタンが押されたら
@@ -139,7 +147,7 @@ window.onload = function(){
     count.send(JSON.stringify({
       type : 'join', 
       room_id: <%= @room.id %>,
-      user_id: <%= session[:user] || '' %>,
+      user_id: <%= session[:user] || "\"\"" %>,
     }));
     document.getElementById('joinBtn').innerHTML = ""
   }

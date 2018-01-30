@@ -17,7 +17,6 @@ checkLine = (nx ,ny, dx, dy) => {
 }
 
 checkStone = (x, y) => {
-  count = 0
   flag = false
   turn = document.getElementById('turn').innerText;
   for(var dx = -1; dx <= 1 ; dx ++){
@@ -28,24 +27,29 @@ checkStone = (x, y) => {
     }
   }
   const pos = getBoard(limitBoard(x), limitBoard(y))
-  if(flag)
+  if(flag){
     pos.innerHTML = '<div class="red"></div>'
-  else
+    return true
+  } else{
     pos.innerHTML = ''
+    return false
+  }
 }
 
 // 置けるところ
 checkBoard = () => {
-  console.log('call checkBoard')
   table = document.getElementsByTagName('table')[0]
   tr = table.getElementsByTagName('tr')
+  let flag = false
   for(var i = 0 ; i < tr.length ; i ++  ){
     td  = tr[i].getElementsByTagName('td')
     for(var j = 0 ; j < td.length ; j ++ ){
       const pos = getBoard(j, i)
       if(pos.innerHTML == "" || pos.innerHTML == '<div class="red"></div>'){
-        checkStone(j, i)
+        flag += checkStone(j, i)
       }
     }
   }
+  console.log(flag)
+  return flag
 }
