@@ -86,6 +86,7 @@ get '/websocket/:id' do |path|
             game_id: data['room_id']
             })
           settings.sockets[path].each do |s| # メッセージを転送
+            puts s
             s.send({type: 'join', name: user.name, id: user.id}.to_json.to_s)
           end
         when 'pass'
@@ -109,8 +110,26 @@ get '/websocket/:id' do |path|
         end
       end
       ws.onclose do # メッセージを終了する時
-        puts 'onclose'
-        puts path
+        game = Game.find(path)
+        white = game.game_users.first.user_id
+        black = game.game_users.second.user_id
+        puts 'close'
+        puts "session #{session[:user]}"
+        # if white == session[:user]
+        #   game.update({status: 'finished', turn: 'black'})
+        #   settings.sockets[path].each do |s| # メッセージを転送
+        #     s.send({type: 'finished', win: 'black' }.to_json.to_s)
+        #   end
+        # elsif black == session[:user]
+        #   game.update({status: 'finished', turn: 'white'})
+        #   settings.sockets[path].each do |s| # メッセージを転送
+        #     s.send({type: 'finished', win: 'white' }.to_json.to_s)
+        #   end
+        # end
+
+        settings.sockets[path].each do |s| # メッセージを転送
+          s.send({type: 'logout', turn: game.turn, user_id: user.id}.to_json.to_s)
+        end
         settings.sockets[path].delete(ws) # socketsリストから削除
       end
     end
