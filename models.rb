@@ -17,7 +17,7 @@ class Game < ActiveRecord::Base
 
   def countColor
     black  = self.stones.where({color: 'black'}).count
-    white = self.stones.where({color: 'black'}).count
+    white = self.stones.where({color: 'white'}).count
     {:black => black, :white => white}
   end
 

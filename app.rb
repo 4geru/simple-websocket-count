@@ -13,7 +13,9 @@ set :server, 'thin'
 set :sockets, {}
 
 before do
-  User.create({name: 'なし'}) if User.all.size == 0
+  User.create({name: 'なし', 
+    password: 'foovar',
+    password_confirmation: 'foovar'}) if User.all.size == 0
 end
 
 get '/' do

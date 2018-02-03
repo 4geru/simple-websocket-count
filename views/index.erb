@@ -35,7 +35,7 @@
   <tr>
     <td><a href="/room/<%= room.id %>">Room<%= room.id %>へ</a></td>
     <td class="<%= room.turn != 'white' ? "loser" : "\"\""%>"><%= room.game_users.first.user.name %></td>
-    <% if room.game_users.second.id == 1 %>
+    <% if room.game_users.second.user.id != 1 %>
       <td class="<%= room.turn != 'black' ? "loser" : "\"\""%>"><%= room.game_users.second.user.name %></td>
     <% else %>
       <td class="">接続切れのため負け</td>
