@@ -23,7 +23,7 @@ class Game < ActiveRecord::Base
 
   def joinUser(user_id)
     self.game_users.first.user_id == user_id || 
-    self.game_users.second.nil? ? true : room.game_users.second.user_id == user_id
+    self.game_users.second.nil? ? true : self.game_users.second.user_id == user_id
   end
 end
 

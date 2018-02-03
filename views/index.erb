@@ -28,7 +28,7 @@
 </table>
 
 <% if session[:user] # ログインしていたら %>
-<% rooms = @rooms.select{|room| room.status == 'finished' }%>
+<% rooms = @rooms.select{|room| room.status == 'finished' and room.joinUser(session[:user])}%>
 <p>対戦履歴</p>
 <table>
 <% rooms.each do |room| %>
