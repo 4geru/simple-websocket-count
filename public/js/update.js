@@ -35,6 +35,7 @@ updateBoard = (x, y) => {
 }
 
 clearRed = () => {
+  tr = document.getElementsByTagName('table')[0].getElementsByTagName('tr')
   for(var i = 0 ; i < tr.length ; i ++  ){
     td  = tr[i].getElementsByTagName('td')
     for(var j = 0 ; j < td.length ; j ++ ){

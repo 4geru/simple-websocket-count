@@ -20,6 +20,11 @@ class Game < ActiveRecord::Base
     white = self.stones.where({color: 'black'}).count
     {:black => black, :white => white}
   end
+
+  def joinUser(user_id)
+    self.game_users.first.user_id == user_id || 
+    self.game_users.second.nil? ? true : room.game_users.second.user_id == user_id
+  end
 end
 
 class Stone < ActiveRecord::Base

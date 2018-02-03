@@ -39,7 +39,13 @@
     clear:both;
   }
 </style>
-<div id='count'><%= @count + 1%></div><div id='turn'><%= @turn_name %></div>
+<div id='winner'>
+<% if @room.status == 'finished' %>
+  <% status =  @room.turn == 'white' ? @users.first : @users.second %>
+  勝者は : <%= status.user.name %>
+<% end %>
+</div>
+<div id='turn'><%= @turn_name %></div>
 <div class="players">
 <div class="player">
   <div class="name"><%= @users.first.user.name %></div>
@@ -68,7 +74,7 @@
 const myRank = <%= session[:user] || "\'\'" %>
 var countBox = document.getElementById("count");
 var turnBox = document.getElementById("turn");
-var player = <%= @user_id || "" %>
+var player = <%= @room.status == 'finished' ? "\"\"" : @user_id || "\"\"" %>
 console.log(myRank, player)
 // ロード後の処理
 initializeBoard = () => {
@@ -99,7 +105,6 @@ insideBoard = (x,y) => {
 
 window.onload = function(){
   initializeBoard()
-  if(myRank == player)checkBoard()
   var count = new WebSocket('ws://' + window.location.host + "/websocket/<%= @room.id %>");
 
   // 接続が始まった時
@@ -116,9 +121,7 @@ window.onload = function(){
       turn = data.turn
       turnBox.innerText = turn
       players = document.getElementsByClassName('player')
-      // player = parseInt((turn == 'white' ? players[0] : players[1]).getElementsByTagName('input')[0].value)
-      // console.log({player: data.user_id, myrank: myRank})
-      if(!(data.user_id == myRank || myRank == '')){
+      if(data.user_id != myRank && myRank != ''){
         if(!checkBoard()){ // 石が置けなかったら
           console.log('pass')
           count.send(JSON.stringify({type:'pass'}));
@@ -129,6 +132,10 @@ window.onload = function(){
       .getElementsByClassName('name')[0].innerText = data.name
       document.getElementsByClassName('player')[1]
       .getElementsByTagName('input')[0].value = data.id
+      if(myRank == player)checkBoard()
+    } else if(data.type == 'finished'){
+      document.getElementById('winner').innerText = `勝者は : ${data.winner}`
+      clearRed()
     } else {
       console.log(data)
     }
