@@ -9,10 +9,10 @@ class Game < ActiveRecord::Base
   has_many :game_users
   accepts_nested_attributes_for :game_users
   def init
-    Stone.create({game_id: self.id, x: 4, y: 4, color: 'black'})
     Stone.create({game_id: self.id, x: 3, y: 3, color: 'black'})
-    Stone.create({game_id: self.id, x: 4, y: 3, color: 'white'})
-    Stone.create({game_id: self.id, x: 3, y: 4, color: 'white'})
+    Stone.create({game_id: self.id, x: 2, y: 2, color: 'black'})
+    Stone.create({game_id: self.id, x: 3, y: 2, color: 'white'})
+    Stone.create({game_id: self.id, x: 2, y: 3, color: 'white'})
   end
 
   def countColor

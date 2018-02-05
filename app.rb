@@ -39,7 +39,7 @@ post '/create_room' do
 end
 
 get '/room/:id' do
-  @board_size = 7
+  @board_size = 6
   @title = "Room No.#{params[:id]}"
   @room = Game.find(params[:id])
   @turn_name = @room.turn

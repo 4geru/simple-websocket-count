@@ -62,9 +62,9 @@
 <div id="joinBtn" onclick="join()">参戦する</div>
 <% end %>
 <table>
-  <% for i in 0..@board_size %>
+  <% for i in 0...@board_size %>
   <tr>
-    <% for j in 0..@board_size %>
+    <% for j in 0...@board_size %>
       <td onclick="s('<%= i %><%= j %>')"  id='<%= i %><%= j %>'></td>
     <% end %>
   </tr>
