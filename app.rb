@@ -38,6 +38,17 @@ post '/create_room' do
   redirect "/room/#{game.id}"
 end
 
+get '/profile/:user' do
+  @user = User.where({name: params[:user]}).first
+  @title = "profile: #{@user.name}"
+  @games = GameUser.where({user_id: @user.id})
+  @wins = @games.select{|game| 
+    winner = game.game.turn == 'white' ? 0 : 1
+    game.game.game_users[winner].user.name == @user.name
+  } 
+  erb :profile
+end
+
 get '/room/:id' do
   @board_size = 6
   @title = "Room No.#{params[:id]}"
