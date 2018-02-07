@@ -143,7 +143,9 @@ get '/websocket/:id' do |path|
         white = game.game_users.first.user_id
         black = game.game_users.second ? game.game_users.second.user_id : nil
         puts black, white
-        if game.status == 'waiting' # 黒が来ずログアウトした
+        if session[:user].nil?
+          settings.sockets[path].delete(ws) # socketsリストから削除
+        elsif game.status == 'waiting' # 黒が来ずログアウトした
           puts 'waiting'
           game.update({status: 'finished', turn: 'black'})
           user = User.first
@@ -152,7 +154,6 @@ get '/websocket/:id' do |path|
             s.send({type: 'finished', winner: user.name }.to_json.to_s)
           end
         elsif  black.nil? or # 2人目のユーザーが対戦していない
-            session[:user].nil? or # 未ログイン
             (white != session[:user] and black != session[:user]) or # 対決ユーザー
             game['status'] == 'finished' # すでに終了している
           settings.sockets[path].delete(ws) # socketsリストから削除
