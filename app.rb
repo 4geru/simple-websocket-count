@@ -6,7 +6,7 @@ require 'json'
 require './models'
 require './src/login'
 
-enable :sessions
+enable :sessions  
 
 set :server, 'thin'
 set :sockets, {}

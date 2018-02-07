@@ -1,5 +1,5 @@
 
-<div class="section">
+<div class="section center">
   <% if session[:user] %>
     <h5>新しい部屋の追加</h5>
     <form action="/create_room" method="post">
@@ -11,61 +11,34 @@
     <p>閲覧モードです．対戦にはログインが必要です．</p>
   <% end %>
 </div>
-<div class="section">
-  <h5>募集中</h5>
-  <div class="divider"></div>
-  <table>
-  <% @rooms.select{|game| game.status == 'waiting'}.each do |room| %>
-    <tr>
-      <td><a href="/room/<%= room.id %>">Room<%= room.id %>へ</a></td>
-      <td><%= room.game_users.first.user.name %></td>
-    </tr>
-  <% end %>
-  </table>
-</div>
-
-<div class="section">
-  <% rooms = @rooms.select{|room| room.status == 'doing' }%>
-  <h5>対戦中</h5>
-  <div class="divider"></div>
-  <table>
-  <% rooms.each do |room| %>
-    <tr>
-      <td><a href="/room/<%= room.id %>">Room<%= room.id %>へ</a></td>
-      <td><%= room.game_users.first.user.name %></td>
-      <td><%= room.game_users.second.user.name %></td>
-    </tr>
-  <% end %>
-  </table>
-</div>
-
-<% if session[:user] # ログインしていたら %>
-<div class="section">
-<% rooms = @rooms.select{|room| room.status == 'finished' and room.joinUser(session[:user])}%>
-<h5>対戦履歴</h5>
-<div class="divider"></div>
-<table>
-<% rooms[0...5].each do |room| %>
-  <tr>
-    <td><a href="/room/<%= room.id %>">Room<%= room.id %>へ</a></td>
-    <td class="<%= room.turn != 'white' ? "loser" : "\"\""%>"><%= room.game_users.first.user.name %></td>
-    <% if room.game_users.second.user.id != 1 %>
-      <td><% colors = room.countColor %><%= "#{colors[:white]} 対 #{colors[:black]}" %></td>
-      <td class="<%= room.turn != 'black' ? "loser" : "\"\""%>"><%= room.game_users.second.user.name %></td>
-    <% else %>
-      <td class="" colspan="2">接続切れのため負け</td>
+<% @login = !session[:user].nil? %>
+<div id="card-stats">
+  <div class="row">
+    <%= render :erb, :'index/waiting' %>    
+    <%= render :erb, :'index/doing' %>
+    <% if @login %>
+    <%= render :erb, :'index/finished' %>
     <% end %>
-  </tr>
-<% end %>
-</table>
+  </div>
 </div>
-<% end %>
- 
+
 <style>
   .loser{
     background-color: red;
   }
   button{
     margin: 10px;
+  }
+  .card-games{
+    height: 300px;
+  }
+  td{
+    padding: 5px 5px;
+  }
+  .card-stats-title{
+    float:left;
+  }
+  h6{
+    margin: 0px;
   }
 </style>
