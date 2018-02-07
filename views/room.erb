@@ -7,60 +7,66 @@
   }
   table{
     background: black;
+    margin: auto;
   }
   .black{
     background: black;
     margin: auto;
-    width: 40px; height: 40px;
+    width: 50px; height: 50px;
     border-radius: 50%;
   }
   .white{
     background: white;
     margin: auto;
-    width: 40px; height: 40px;
-    border-radius: 50%;
-  }
-  .blue{
-    background: blue;
-    margin: auto;
-    width: 40px; height: 40px;
+    width: 50px; height: 50px;
     border-radius: 50%;
   }
   .red{
     background: red;
     margin: auto;
-    width: 40px; height: 40px;
+    width: 50px; height: 50px;
     border-radius: 50%;
   }
-  .players > div{
-    float: left;
+  td{
+    height: 70px;
+    width: 70px;
+    padding: 0px;
+    border: medium solid black;
   }
-  .players{
-    clear:both;
+  table{
+    width: 420px;
+    height: 420px;
+  }
+  h3{
+    margin: 0px;
+    padding: 10px;
+  }
+  .float{
+    float:left;
   }
 </style>
-<div id='winner'>
 <% if @room.status == 'finished' %>
   <% status =  @room.turn == 'white' ? @users.first : @users.second %>
-  勝者は : <%= status.user.name %>
+  <div class="green lighten-4 center"><h3>勝者は : <%= status.user.name %></h3></div>
+<% elsif @room.status == 'doing' %>
+  <div class="green lighten-4 center"><h3>対戦中</h3></div>
+  <div class="center" id='turn'><h5><%= @turn_name %>のターン</h5></div>
 <% end %>
+<div class="players center">
+  <div class="player">
+    <div class="name"><h5><%= @users.first.user.name %></h5></div>
+    <input type="hidden" value="<%= @users.first.user.id %>">
+  </div><div class=""><h5> vs. </h5></div>
+  <div class="player">
+    <div class="name"><h5><%= @users.second ? @users.second.user.name : '' %></h5></div>
+    <input type="hidden" value="<%= @users.second ? @users.second.user.id : '' %>">   
+  </div>
 </div>
-<div id='turn'><%= @turn_name %></div>
-<div class="players">
-<div class="player">
-  <div class="name"><%= @users.first.user.name %></div>
-  <input type="hidden" value="<%= @users.first.user.id %>">
-</div><div> vs. </div>
-<div class="player">
-  <div class="name"><%= @users.second ? @users.second.user.name : '' %></div>
-  <input type="hidden" value="<%= @users.second ? @users.second.user.id : '' %>">   
-</div>
-</div>
-<br />
-<hr />
+
 <% if @room.game_users.count < 2 and session[:user] and @room.game_users.first.user.id != session[:user] %>
 <div id="joinBtn" onclick="join()">参戦する</div>
 <% end %>
+
 <table>
   <% for i in 0...@board_size %>
   <tr>
@@ -70,6 +76,7 @@
   </tr>
   <% end %>
 </table>
+
 <script>
 const myRank = <%= session[:user] || "\'\'" %>
 var countBox = document.getElementById("count");

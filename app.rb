@@ -8,7 +8,6 @@ require './src/login'
 
 enable :sessions
 
-
 set :server, 'thin'
 set :sockets, {}
 
@@ -16,6 +15,20 @@ before do
   User.create({name: 'なし', 
     password: 'foovar',
     password_confirmation: 'foovar'}) if User.all.size == 0
+end
+
+get '/room/doing' do
+  params[:id] = 10
+  @board_size = 6
+  @title = "Room No.#{params[:id]}"
+  @room = Game.find(params[:id])
+  @room.status = 'doing'
+  @turn_name = @room.turn
+  @stones = @room.stones
+  @users = GameUser.where({:game => params[:id]})
+  user_idx = @room.turn == 'white' ? 0 : 1
+  @user_id = GameUser.where({:game => params[:id]})[user_idx].user.id
+  erb :room
 end
 
 get '/' do
