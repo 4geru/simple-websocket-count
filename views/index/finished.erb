@@ -8,13 +8,13 @@
         <table class="teal lighten-2">
         <% rooms[0...5].each do |room| %>
           <tr>
-            <td><i class="material-icons left">person</i><%= room.game_users.first.user.name %></td>
-            <% if room.game_users.second.user.id != 1 %>
-              <td><% colors = room.countColor %><%= "#{colors[:white]} 対 #{colors[:black]}" %></td>
-              <td><i class="material-icons left">person</i><%= room.game_users.second.user.name %></td>
+            <% if false%>
+              <td class="red-text white"><a class="red btn-floating"><i class="material-icons">arrow_downward</i></a></td>
             <% else %>
-              <td class="" colspan="2">接続切れのため負け</td>
+              <td><a class="blue btn-floating"><i class="material-icons">arrow_upward</i></a></td>
             <% end %>
+            <td><i class="material-icons left">person</i><%= room.game_users.first.user.name %></td>
+            <td><i class="material-icons left">person</i><%= room.game_users.second.user.name %></td>
             <td><a class="black-text" href="/room/<%= room.id %>">Room<%= room.id %>へ</a></td>
           </tr>
         <% end %>
