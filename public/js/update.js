@@ -5,7 +5,7 @@ updateLine = (nx ,ny, dx, dy, turn) => {
 
     pos = getBoard(nx,ny)
     console.log(pos)
-    if(pos.innerHTML == `<div class="${turn}"></div>`){
+    if(pos.innerHTML == `<div class="${turn} stone"></div>`){
       return true
     }
     // updateStone(nx, ny, turn);
@@ -20,7 +20,7 @@ updateBoard = (x, y) => {
   console.log(x,y)
   count = 0
   flag = false
-  turn = document.getElementById('turn').innerText == 'whiteのターン' ? 'white' : 'black' ;
+  turn = document.getElementById('status').innerText == 'whiteのターン' ? 'white' : 'black' ;
   // updateStone(x,y,turn)
   updateStone(x, y, turn)
   for(var dx = -1; dx <= 1 ; dx ++){
@@ -40,7 +40,7 @@ clearRed = () => {
     td  = tr[i].getElementsByTagName('td')
     for(var j = 0 ; j < td.length ; j ++ ){
       const pos = getBoard(j, i)
-      if(pos.innerHTML == '<div class="red"></div>'){
+      if(pos.innerHTML == '<div class="red stone"></div>'){
         pos.innerHTML = ""
       }
     }
