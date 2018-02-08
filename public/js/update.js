@@ -20,7 +20,7 @@ updateBoard = (x, y) => {
   console.log(x,y)
   count = 0
   flag = false
-  turn = document.getElementById('turn').innerText;
+  turn = document.getElementById('turn').innerText == 'whiteのターン' ? 'white' : 'black' ;
   // updateStone(x,y,turn)
   updateStone(x, y, turn)
   for(var dx = -1; dx <= 1 ; dx ++){
@@ -35,7 +35,7 @@ updateBoard = (x, y) => {
 }
 
 clearRed = () => {
-  tr = document.getElementsByTagName('table')[0].getElementsByTagName('tr')
+  tr = document.getElementsByTagName('table')[1].getElementsByTagName('tr')
   for(var i = 0 ; i < tr.length ; i ++  ){
     td  = tr[i].getElementsByTagName('td')
     for(var j = 0 ; j < td.length ; j ++ ){

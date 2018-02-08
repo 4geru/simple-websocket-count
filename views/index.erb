@@ -9,6 +9,16 @@
     </form>
   <% else %>
     <p>閲覧モードです．対戦にはログインが必要です．</p>
+    <form action="/login0" method="post">
+      <button type="submit" class="waves-effect waves-light btn">
+        部屋の追加
+      </button>
+    </form>
+    <form action="/login1" method="post">
+      <button type="submit" class="waves-effect waves-light btn">
+        部屋の追加
+      </button>
+    </form>
   <% end %>
 </div>
 <% @login = !session[:user].nil? %>

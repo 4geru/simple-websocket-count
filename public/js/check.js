@@ -1,5 +1,9 @@
+closebox = () => {
+  document.getElementById('card-alert').style.display = 'none'
+}
+
 // startx, starty, distx, disty
-checkLine = (nx ,ny, dx, dy) => {
+checkLine = (nx ,ny, dx, dy) => {a
   turn = document.getElementById('turn').innerText;
   if(getBoard(nx,ny).innerHTML == `<div class="${turn}"></div>`) return false
   while(true){
@@ -18,7 +22,7 @@ checkLine = (nx ,ny, dx, dy) => {
 
 checkStone = (x, y) => {
   flag = false
-  turn = document.getElementById('turn').innerText;
+  turn = document.getElementById('turn').innerText == 'whiteのターン' ? 'white' : 'black';
   for(var dx = -1; dx <= 1 ; dx ++){
     for(var dy = -1; dy <= 1 ; dy ++){
       if(dx == dy && dx == 0)continue;

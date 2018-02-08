@@ -20,6 +20,7 @@ post '/signin' do
 end
 
 post '/signup' do
+  puts params
   if User.where({name: params[:name]}).count != 0
     session[:error] = 'already sign up your name'
     redirect '/signup'
