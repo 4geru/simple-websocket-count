@@ -7,6 +7,7 @@ class Game < ActiveRecord::Base
   has_many :stones
   has_many :users, through: :game_users
   has_many :game_users
+  belongs_to :user
   accepts_nested_attributes_for :game_users
   def init
     Stone.create({game_id: self.id, x: 3, y: 3, color: 'black'})
@@ -25,6 +26,18 @@ class Game < ActiveRecord::Base
     self.game_users.first.user_id == user_id || 
     self.game_users.second.nil? ? true : self.game_users.second.user_id == user_id
   end
+
+  def winner
+    white = self.stones.where({color: 'white'}).count
+    black = self.stones.where({color: 'black'}).count
+    if white == black 
+      -1
+    elsif white > black
+      self.game_users.first.user_id
+    else
+      self.game_users.second.user_id
+    end
+  end
 end
 
 class Stone < ActiveRecord::Base
@@ -37,6 +50,7 @@ class User < ActiveRecord::Base
     presence: true
   validates :password,
     length: {in: 5..10}
+  has_many :games
   has_many :games, through: :game_users
   has_many :game_users
 end

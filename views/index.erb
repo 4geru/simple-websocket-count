@@ -1,53 +1,55 @@
-<% if session[:user] %>
-  <form action="/create_room" method="post">
-    <input type="submit" value="部屋の追加">
-  </form>
-<% else %>
-  <p>閲覧モードです．対戦にはログインが必要です．</p>
-<% end %>
-<p>募集中</p>
-<table>
-<% @rooms.select{|game| game.status == 'waiting'}.each do |room| %>
-  <tr>
-    <td><a href="/room/<%= room.id %>">Room<%= room.id %>へ</a></td>
-    <td><%= room.game_users.first.user.name %></td>
-  </tr>
-<% end %>
-</table>
 
-<% rooms = @rooms.select{|room| room.status == 'doing' }%>
-<p>対戦中</p>
-<table>
-<% rooms.each do |room| %>
-  <tr>
-    <td><a href="/room/<%= room.id %>">Room<%= room.id %>へ</a></td>
-    <td><%= room.game_users.first.user.name %></td>
-    <td><%= room.game_users.second.user.name %></td>
-  </tr>
-<% end %>
-</table>
-
-<% if session[:user] # ログインしていたら %>
-<% rooms = @rooms.select{|room| room.status == 'finished' and room.joinUser(session[:user])}%>
-<p>対戦履歴</p>
-<table>
-<% rooms.each do |room| %>
-  <tr>
-    <td><a href="/room/<%= room.id %>">Room<%= room.id %>へ</a></td>
-    <td class="<%= room.turn != 'white' ? "loser" : "\"\""%>"><%= room.game_users.first.user.name %></td>
-    <% if room.game_users.second.user.id != 1 %>
-      <td><% colors = room.countColor %><%= "#{colors[:white]}, #{colors[:black]}" %></td>
-      <td class="<%= room.turn != 'black' ? "loser" : "\"\""%>"><%= room.game_users.second.user.name %></td>
-    <% else %>
-      <td class="" colspan="2">接続切れのため負け</td>
+<div class="section center">
+  <% if session[:user] %>
+    <h5>新しい部屋の追加</h5>
+    <form action="/create_room" method="post">
+      <button type="submit" class="waves-effect waves-light btn">
+        部屋の追加
+      </button>
+    </form>
+  <% else %>
+    <p>閲覧モードです．対戦にはログインが必要です．</p>
+    <form action="/login0" method="post">
+      <button type="submit" class="waves-effect waves-light btn">
+        部屋の追加
+      </button>
+    </form>
+    <form action="/login1" method="post">
+      <button type="submit" class="waves-effect waves-light btn">
+        部屋の追加
+      </button>
+    </form>
+  <% end %>
+</div>
+<% @login = !session[:user].nil? %>
+<div id="card-stats">
+  <div class="row">
+    <%= render :erb, :'index/waiting' %>    
+    <%= render :erb, :'index/doing' %>
+    <% if @login %>
+    <%= render :erb, :'index/finished' %>
     <% end %>
-  </tr>
-<% end %>
-</table>
-<% end %>
+  </div>
+</div>
 
 <style>
   .loser{
     background-color: red;
+  }
+  button{
+    margin: 10px;
+  }
+  .card-games{
+    height: 300px;
+  }
+  td{
+    padding: 5px 5px;
+    height: 55px;
+  }
+  .card-stats-title{
+    float:left;
+  }
+  h6{
+    margin: 0px;
   }
 </style>

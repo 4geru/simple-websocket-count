@@ -1,0 +1,13 @@
+<p><%= @wins.count %>/<%= @games.count %></p>
+<%= "winrate : #{100 * @wins.count / @games.count}%" %>
+<% @games.each do |game| %>
+<p>
+  <% winner = game.game.turn == 'white' ? 0 : 1 %>
+  <%= game.game.game_users[winner].user.name == @user.name ? '勝ち' : '負け' %>
+  <%= game.game.game_users[winner].user.name %>
+  <%= game.game.game_users.first.user.name %>
+  <%= game.game.game_users.second.user.name %>
+</p>
+<% end %>
+
+

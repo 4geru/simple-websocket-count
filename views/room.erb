@@ -1,88 +1,124 @@
 <script src='/js/check.js'></script>
 <script src='/js/update.js'></script>
 <style>
-  td{
-    background: green;
+  .stone{
+    margin: auto;
     width: 50px; height: 50px;
-  }
-  table{
-    background: black;
+    border-radius: 50%;
   }
   .black{
     background: black;
-    margin: auto;
-    width: 40px; height: 40px;
-    border-radius: 50%;
   }
   .white{
     background: white;
-    margin: auto;
-    width: 40px; height: 40px;
-    border-radius: 50%;
-  }
-  .blue{
-    background: blue;
-    margin: auto;
-    width: 40px; height: 40px;
-    border-radius: 50%;
   }
   .red{
     background: red;
+  }
+  #board td{
+    background: green;
+    height: 70px;
+    width: 70px;
+    padding: 0px;
+    border: medium solid black;
+  }
+  table#board{
+    width: 420px;
+    height: 420px;
     margin: auto;
-    width: 40px; height: 40px;
-    border-radius: 50%;
   }
-  .players > div{
-    float: left;
+  h4{
+    margin: 0px;
+    padding: 10px;
   }
-  .players{
-    clear:both;
+  .float{
+    float:left;
   }
+  .card-action{
+    height: 50px;
+  }
+  #card-alert a.close {
+    background: none;
+    border: none;
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 20px;
+    color: #fff;
+  }
+  .row{
+    margin-top: 50px;
+  }
+
 </style>
-<div id='winner'>
-<% if @room.status == 'finished' %>
-  <% status =  @room.turn == 'white' ? @users.first : @users.second %>
-  勝者は : <%= status.user.name %>
-<% end %>
-</div>
-<div id='turn'><%= @turn_name %></div>
-<div class="players">
-<div class="player">
-  <div class="name"><%= @users.first.user.name %></div>
-  <input type="hidden" value="<%= @users.first.user.id %>">
-</div><div> vs. </div>
-<div class="player">
-  <div class="name"><%= @users.second ? @users.second.user.name : '' %></div>
-  <input type="hidden" value="<%= @users.second ? @users.second.user.id : '' %>">   
-</div>
-</div>
-<br />
-<hr />
-<% if @room.game_users.count < 2 and session[:user] and @room.game_users.first.user.id != session[:user] %>
-<div id="joinBtn" onclick="join()">参戦する</div>
-<% end %>
-<table>
-  <% for i in 0...@board_size %>
-  <tr>
-    <% for j in 0...@board_size %>
-      <td onclick="s('<%= i %><%= j %>')"  id='<%= i %><%= j %>'></td>
+
+<div class="row">
+  <div class="col s12 m4 l3">
+    <div id="card-score" class="card cyan lighten-5">
+      <div class="card-content cyan-text darken-1">
+        <span class="card-title cyan-text darken-1">Score Board</span>
+        <div class="status blue-grey-text">                    
+          <% if @room.status == 'waiting' %>
+          <div class="orange lighten-4 center"><h4 id="status">待機中</h4></div>
+          <% elsif @room.status == 'doing' %>
+          <div class="green lighten-4 center"><h4 id="status"><%= @room.turn %>のターン</h4></div>
+          <% elsif @room.status == 'finished' %>
+          <div class="yellow lighten-4 center"><h4 id="status"><%= @room.user.name %>の勝ち</h4></div>
+          <% end %>
+        </div>
+
+        <div class="players">
+          <table>
+            <tr><th>user</th><th>score</th></tr><% stones = @room.countColor %>
+            <tr><td class="user_name"><%= @users.first.user.name %></td><td class="score"><%= stones[:white] %></td></tr>
+            <tr><td class="user_name"><%= @users.second.nil? ? '' : @users.second.user.name %></td><td class="score"><%= stones[:black] %></td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="card-action cyan lighten-4">
+      </div>
+    </div>
+  </div>
+  <div class="col s12 m4 l6">
+  <table id="board"><% for i in 0...@board_size %>
+    <tr><% for j in 0...@board_size %>
+        <td onclick="s('<%= i %><%= j %>')"  id='<%= i %><%= j %>'></td>
+      <% end %>
+    </tr>
     <% end %>
-  </tr>
-  <% end %>
-</table>
+  </table>
+  </div>
+  <% if @room.status == 'waiting' and session[:user] != @room.game_users.first.user_id %>
+  <div class="col s12 m4 l3">
+    <div id="card-alert" class="card pink lighten-5">
+      <div class="card-content pink-text darken-1">
+        <span class="card-title pink-text darken-1">Some Message</span>
+        <p>対戦することができます。対戦しますか？</p>
+      </div>
+      <div class="card-action pink lighten-4">
+        <a href="javascript:void(0);" onClick="join();" class="pink-text" >Yes</a>
+        <a href="javascript:void(0);" onClick="closebox()" class="pink-text">No</a>
+      </div>
+      <a class="close pink-text" href="javascript:void(0);" onClick="closebox()">
+        x
+      </a>
+    </div>
+  </div>
+</div>
+<% end %>
 <script>
 const myRank = <%= session[:user] || "\'\'" %>
 var countBox = document.getElementById("count");
-var turnBox = document.getElementById("turn");
+var turnBox = document.getElementById("status");
 var player = <%= @room.status == 'finished' ? "\"\"" : @user_id || "\"\"" %>
 console.log(myRank, player)
 // ロード後の処理
 initializeBoard = () => {
 <% @stones.each do |stone| %>
-  document.
+  document.getElementsByTagName('table')[1].
     getElementsByTagName('tr')[<%= stone.y %>].
     getElementsByTagName('td')[<%= stone.x %>].innerHTML 
-      = "<div class='<%= stone.color %>'></div>"
+      = "<div class='<%= stone.color %> stone'></div>"
 <% end %>
 }
 
@@ -92,7 +128,7 @@ limitBoard = (pos) => {
 }
 
 getBoard = (x, y) => {
-  table = document.getElementsByTagName('table')[0]
+  table = document.getElementsByTagName('table')[1]
   return table.getElementsByTagName('tr')[y].
     getElementsByTagName('td')[x]
 }
@@ -108,18 +144,21 @@ window.onload = function(){
   var count = new WebSocket('ws://' + window.location.host + "/websocket/<%= @room.id %>");
 
   // 接続が始まった時
-  count.onopen = function() { count.send('{"type":"open"}'); };
+  count.onopen = function() { };
   // 接続が終わった時
-  count.onclose = function() { count.send('{"type":"close", "id": <%= @room.id %>}'); };
+  count.onclose = function() { };
   // メッセージを受け取った時
   count.onmessage = function(m) {
     data = JSON.parse(m.data)
     console.log({type: data.type, data: data})
     if(data.type == 'board'){
-      document.getElementById(data.pos).innerHTML = '<div class=' + data.turn + '></div>'
+      document.getElementById(data.pos).innerHTML = '<div class="' + data.turn + ' stone"></div>'
+      scores = document.getElementsByClassName('score')
+      scores[0].innerText = document.getElementsByClassName('white').length
+      scores[1].innerText = document.getElementsByClassName('black').length
     } else if(data.type == 'turn'){
       turn = data.turn
-      turnBox.innerText = turn
+      turnBox.innerText = turn + 'のターン'
       players = document.getElementsByClassName('player')
       if(data.user_id != myRank && myRank != ''){
         if(!checkBoard()){ // 石が置けなかったら
@@ -128,13 +167,11 @@ window.onload = function(){
         }
       }
     } else if(data.type == 'join'){
-      document.getElementsByClassName('player')[1]
-      .getElementsByClassName('name')[0].innerText = data.name
-      document.getElementsByClassName('player')[1]
-      .getElementsByTagName('input')[0].value = data.id
+      document.getElementsByClassName('user_name')[1].innerText = data.name
+      document.getElementById('status').innerText = 'whiteのターン'
       if(myRank == player)checkBoard()
     } else if(data.type == 'finished'){
-      document.getElementById('winner').innerText = `勝者は : ${data.winner}`
+      document.getElementById('status').innerText = `勝者は : ${data.winner}`
       clearRed()
     } else {
       console.log(data)
@@ -156,7 +193,7 @@ window.onload = function(){
       room_id: <%= @room.id %>,
       user_id: <%= session[:user] || "\"\"" %>,
     }));
-    document.getElementById('joinBtn').innerHTML = ""
+    closebox()
   }
 
   updateStone = (x, y, turn) => {
