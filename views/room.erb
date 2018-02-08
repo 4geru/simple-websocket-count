@@ -144,15 +144,18 @@ window.onload = function(){
   var count = new WebSocket('ws://' + window.location.host + "/websocket/<%= @room.id %>");
 
   // 接続が始まった時
-  count.onopen = function() { count.send('{"type":"open"}'); };
+  count.onopen = function() { };
   // 接続が終わった時
-  count.onclose = function() { count.send('{"type":"close", "id": <%= @room.id %>}'); };
+  count.onclose = function() { };
   // メッセージを受け取った時
   count.onmessage = function(m) {
     data = JSON.parse(m.data)
     console.log({type: data.type, data: data})
     if(data.type == 'board'){
       document.getElementById(data.pos).innerHTML = '<div class="' + data.turn + ' stone"></div>'
+      scores = document.getElementsByClassName('score')
+      scores[0].innerText = document.getElementsByClassName('white').length
+      scores[1].innerText = document.getElementsByClassName('black').length
     } else if(data.type == 'turn'){
       turn = data.turn
       turnBox.innerText = turn + 'のターン'

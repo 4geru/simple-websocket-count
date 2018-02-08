@@ -4,7 +4,7 @@
       <p class="card-stats-title">
         <i class="material-icons middle">personal_video</i> 対戦中</p>
       <div class="card-doing-games card-games">
-        <% rooms = @rooms.select{|room| room.status == 'doing' }%>
+        <% rooms = @rooms.select{|room| room.status == 'doing' }.shuffle[0...5]%>
         <table class="red lighten-2">
         <% rooms.each do |room| %>
           <tr>

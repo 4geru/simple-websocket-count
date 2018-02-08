@@ -29,7 +29,7 @@ end
 
 get '/' do
   @title = "Home"
-  @rooms = Game.all
+  @rooms = Game.all.reverse
   erb :index
 end
 
@@ -136,15 +136,13 @@ get '/websocket/:id' do |path|
         end
       end
       ws.onclose do # メッセージを終了する時
-        puts path
-        puts Game.last
         game = Game.find(path)
-        white = game.game_users.first.user_id
-        black = game.game_users.second ? game.game_users.second.user_id : nil
-        puts black, white
-        if session[:user].nil?
+        white = game.game_users.first.user
+        black = game.game_users.second ? game.game_users.second.user : nil
+        if session[:user].nil? or game['status'] == 'finished'
+          puts 'else'
           settings.sockets[path].delete(ws) # socketsリストから削除
-        elsif game.status == 'waiting' # 黒が来ずログアウトした
+        elsif black.nil? # 黒が来ずログアウトした
           puts 'waiting'
           game.update({status: 'finished', user_id: 1})
           user = User.first
@@ -152,17 +150,19 @@ get '/websocket/:id' do |path|
           settings.sockets[path].each do |s| # メッセージを転送
             s.send({type: 'finished', winner: user.name }.to_json.to_s)
           end
-        elsif  black.nil? or # 2人目のユーザーが対戦していない
-            (white != session[:user] and black != session[:user]) or # 対決ユーザー
-            game['status'] == 'finished' # すでに終了している
+        elsif white.id == session[:user]
+          puts 'white'
+          game.update({status: 'finished', user_id: black.id})
           settings.sockets[path].delete(ws) # socketsリストから削除
-        else
-          game.update({status: 'finished', user_id: session[:user]})
-          settings.sockets[path].delete(ws) # socketsリストから削除
-          puts 'send message'
-          winner = User.find(session[:user])
           settings.sockets[path].each do |s| # メッセージを転送
-            s.send({type: 'finished', winner: winner.name }.to_json.to_s)
+            s.send({type: 'finished', winner: black.name }.to_json.to_s)
+          end
+        elsif black.id == session[:user]
+          puts 'black'
+          game.update({status: 'finished', user_id: white.id})
+          settings.sockets[path].delete(ws) # socketsリストから削除
+          settings.sockets[path].each do |s| # メッセージを転送
+            s.send({type: 'finished', winner: white.name }.to_json.to_s)
           end
         end
       end
